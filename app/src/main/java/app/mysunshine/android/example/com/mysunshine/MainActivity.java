@@ -8,6 +8,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -45,15 +53,33 @@ public class MainActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class PlaceholderFragment extends Fragment {
+        List<String> weekForecast = new ArrayList<String>();
+        @InjectView(R.id.listview_forecast)
+        ListView mListviewForecast;
 
         public PlaceholderFragment() {
+            weekForecast.add("Today - Sunny - 88/63");
+            weekForecast.add("Wed - Gloomy - 69/63");
+            weekForecast.add("Monday - Sunny - 88/63");
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            ButterKnife.inject(this, rootView);
+            mListviewForecast.setAdapter(new ArrayAdapter<String>(
+                    getActivity(),
+                    R.layout.list_item_forcast,
+                    R.id.list_item_forecast_textview,
+                    weekForecast));
             return rootView;
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            ButterKnife.reset(this);
         }
     }
 }
