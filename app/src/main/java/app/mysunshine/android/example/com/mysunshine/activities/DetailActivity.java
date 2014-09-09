@@ -1,5 +1,6 @@
 package app.mysunshine.android.example.com.mysunshine.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -8,8 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import app.mysunshine.android.example.com.mysunshine.R;
+import butterknife.ButterKnife;
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -23,7 +26,6 @@ public class DetailActivity extends ActionBarActivity {
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -53,9 +55,14 @@ public class DetailActivity extends ActionBarActivity {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            Intent intent = getActivity().getIntent();
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+            if (intent != null && intent.hasExtra(Intent.EXTRA_INTENT)) {
+                String forecastStr = intent.getStringExtra(Intent.EXTRA_INTENT);
+                TextView detailText = ButterKnife.findById(rootView, R.id.detail_text);
+                detailText.setText(forecastStr);
+            }
             return rootView;
         }
     }
