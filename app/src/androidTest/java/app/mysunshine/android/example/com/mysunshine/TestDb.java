@@ -17,6 +17,7 @@ import app.mysunshine.android.example.com.mysunshine.data.WeatherDbHelper;
  * Created by dkocian on 9/9/2014.
  */
 public class TestDb extends AndroidTestCase {
+
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
     static ContentValues createWeatherValues(long locationRowId) {
@@ -59,7 +60,8 @@ public class TestDb extends AndroidTestCase {
 
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
-        SQLiteDatabase db = new WeatherDbHelper(this.mContext).getWritableDatabase();
+        SQLiteDatabase db = new WeatherDbHelper(
+                this.mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
         db.close();
     }
@@ -75,7 +77,8 @@ public class TestDb extends AndroidTestCase {
         // Verify we got a row back.
         assertTrue(locationRowId != -1);
         Log.d(LOG_TAG, "New row id: " + locationRowId);
-        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made the round trip.
+        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
+        // the round trip.
         // A cursor is your primary interface to the query results.
         Cursor cursor = db.query(
                 LocationEntry.TABLE_NAME,  // Table to Query
