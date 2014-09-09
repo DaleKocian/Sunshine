@@ -35,7 +35,6 @@ import java.util.Date;
 import app.mysunshine.android.example.com.mysunshine.R;
 import app.mysunshine.android.example.com.mysunshine.activities.DetailActivity;
 import app.mysunshine.android.example.com.mysunshine.utils.UrlServices;
-import app.mysunshine.android.example.com.mysunshine.utils.WeatherJsonParsing;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -263,7 +262,7 @@ public class ForecastFragment extends Fragment {
                 }
             }
             try {
-                return WeatherJsonParsing.getWeatherDataFromJson(forecastJsonStr, numDays);
+                return getWeatherDataFromJson(forecastJsonStr, numDays);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
