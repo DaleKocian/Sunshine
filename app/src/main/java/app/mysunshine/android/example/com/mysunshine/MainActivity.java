@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import app.mysunshine.android.example.com.mysunshine.fragments.ForecastFragment;
 
 public class MainActivity extends ActionBarActivity {
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
