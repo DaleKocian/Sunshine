@@ -112,14 +112,23 @@ public class TestProvider extends AndroidTestCase {
         // Get the joined Weather and Location data with a start date
         weatherCursor = mContext.getContentResolver().query(
                 WeatherEntry.buildWeatherLocationWithStartDate(
-                        TEST_LOCATION, "20150624"),
+                        TEST_LOCATION, TEST_DATE),
                 null, // leaving "columns" null just returns all the columns.
                 null, // cols for "where" clause
                 null, // values for "where" clause
                 null  // sort order
         );
         TestDb.validateCursor(weatherCursor, weatherValues);
-        dbHelper.close();
+
+        weatherCursor = mContext.getContentResolver().query(
+                WeatherEntry.buildWeatherLocationWithDate(
+                        TEST_LOCATION, TEST_DATE),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+        TestDb.validateCursor(weatherCursor, weatherValues);
     }
 
     // The target api annotation is needed for the call to keySet -- we wouldn't want
