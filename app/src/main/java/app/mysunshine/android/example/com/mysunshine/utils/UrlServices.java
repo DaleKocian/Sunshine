@@ -8,5 +8,5 @@ public class UrlServices {
     String mode;
     String unitOfMeasurement;
     int numberOfDays;
-    String s = "http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&units=metric&cnt=7";
+    public static final String SEVEN_DAY_FORECAST = "http://api.openweathermap.org/data/2.5/forecast/daily?q=94043&mode=json&units=metric&units=metric&cnt=7";
 }
