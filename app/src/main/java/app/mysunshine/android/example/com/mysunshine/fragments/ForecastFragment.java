@@ -1,5 +1,6 @@
 package app.mysunshine.android.example.com.mysunshine.fragments;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -27,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import app.mysunshine.android.example.com.mysunshine.R;
+import app.mysunshine.android.example.com.mysunshine.activities.DetailActivity;
 import app.mysunshine.android.example.com.mysunshine.utils.UrlServices;
 import app.mysunshine.android.example.com.mysunshine.utils.WeatherJsonParsing;
 import butterknife.ButterKnife;
@@ -88,6 +91,15 @@ public class ForecastFragment extends Fragment {
                 R.id.list_item_forecast_textview,
                 weekForecast);
         mListViewForecast.setAdapter(mForecastAdapter);
+        mListViewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_INTENT, forecast);
+                startActivity(detailActivity);
+            }
+        });
         return rootView;
     }
 
@@ -122,6 +134,7 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(UrlServices.DAYS_PARAM, Integer.toString(numDays))
                         .build();
                 URL url = new URL(builtUri.toString());
+                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
