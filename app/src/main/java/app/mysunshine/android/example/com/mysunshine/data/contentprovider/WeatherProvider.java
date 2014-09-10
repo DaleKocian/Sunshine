@@ -74,56 +74,6 @@ public class WeatherProvider extends ContentProvider {
         return true;
     }
 
-    @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        Cursor retCursor;
-        switch (sUriMatcher.match(uri)) {
-            case WEATHER_WITH_LOCATION_AND_DATE:
-                retCursor = getWeatherByLocationSettingWithDate(uri, projection, sortOrder);
-                break;
-            case WEATHER_WITH_LOCATION:
-                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
-                break;
-            case WEATHER:
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        WeatherContract.WeatherEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            case LOCATION_ID:
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        WeatherContract.LocationEntry.TABLE_NAME,
-                        projection,
-                        WeatherContract.LocationEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
-                        null,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            case LOCATION:
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        WeatherContract.LocationEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-        }
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
-        return retCursor;
-    }
-
     private Cursor getWeatherByLocationSettingWithDate(Uri uri, String[] projection, String sortOrder) {
         String day = WeatherContract.WeatherEntry.getDateFromUri(uri);
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
@@ -180,6 +130,56 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Cursor retCursor;
+        switch (sUriMatcher.match(uri)) {
+            case WEATHER_WITH_LOCATION_AND_DATE:
+                retCursor = getWeatherByLocationSettingWithDate(uri, projection, sortOrder);
+                break;
+            case WEATHER_WITH_LOCATION:
+                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
+                break;
+            case WEATHER:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case LOCATION_ID:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        WeatherContract.LocationEntry._ID + " = '" + ContentUris.parseId(uri) + "'",
+                        null,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            case LOCATION:
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        WeatherContract.LocationEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return retCursor;
+    }
+
+    @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
@@ -209,12 +209,70 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String s, String[] strings) {
-        return 0;
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case WEATHER:
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
+                        if (-1 != _id) {
+                            ++returnCount;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 
     @Override
-    public int update(Uri uri, ContentValues contentValues, String s, String[] strings) {
-        return 0;
+    public int delete(Uri uri, String whereClause, String[] whereArgs) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+        switch (match) {
+            case WEATHER:
+                rowsDeleted = db.delete(WeatherContract.WeatherEntry.TABLE_NAME, whereClause, whereArgs);
+                break;
+            case LOCATION:
+                rowsDeleted = db.delete(WeatherContract.LocationEntry.TABLE_NAME, whereClause, whereArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (null == whereClause || 0 != rowsDeleted) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues contentValues, String whereClause, String[] whereArgs) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+        switch (match) {
+            case WEATHER:
+                rowsUpdated = db.update(WeatherContract.WeatherEntry.TABLE_NAME, contentValues, whereClause, whereArgs);
+                break;
+            case LOCATION:
+                rowsUpdated = db.update(WeatherContract.LocationEntry.TABLE_NAME, contentValues, whereClause, whereArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (null == whereClause || 0 != rowsUpdated) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 }
