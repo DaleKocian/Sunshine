@@ -1,9 +1,11 @@
 package app.mysunshine.android.example.com.mysunshine;
 
 import android.annotation.TargetApi;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -58,11 +60,10 @@ public class TestProvider extends AndroidTestCase {
         // errors will be thrown here when you try to get a writable database.
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestDb.createNorthPoleLocationValues();
-        long locationRowId;
-        locationRowId = db.insert(LocationEntry.TABLE_NAME, null, testValues);
-        // Verify we got a row back.
-        assertTrue(locationRowId != -1);
+        ContentValues locationValues = getLocationContentValues();
+        Uri locationInsertUri = mContext.getContentResolver().insert(LocationEntry.CONTENT_URI, locationValues);
+        assertTrue(locationInsertUri != null);
+        long locationRowId = ContentUris.parseId(locationInsertUri);
         Log.d(LOG_TAG, "New row id: " + locationRowId);
         // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
         // the round trip.
@@ -74,7 +75,7 @@ public class TestProvider extends AndroidTestCase {
                 null, // values for "where" clause
                 null  // sort order
         );
-        TestDb.validateCursor(cursor, testValues);
+        TestDb.validateCursor(cursor, locationValues);
         // Now see if we can successfully query if we include the row id
         cursor = mContext.getContentResolver().query(
                 LocationEntry.buildLocationUri(locationRowId),
@@ -83,11 +84,11 @@ public class TestProvider extends AndroidTestCase {
                 null, // values for "where" clause
                 null  // sort order
         );
-        TestDb.validateCursor(cursor, testValues);
+        TestDb.validateCursor(cursor, locationValues);
         // Fantastic.  Now that we have a location, add some weather!
-        ContentValues weatherValues = TestDb.createWeatherValues(locationRowId);
-        long weatherRowId = db.insert(WeatherEntry.TABLE_NAME, null, weatherValues);
-        assertTrue(weatherRowId != -1);
+        ContentValues weatherValues = getWeatherContentValues(locationRowId);
+        Uri weatherInsertUri = mContext.getContentResolver().insert(WeatherEntry.CONTENT_URI, weatherValues);
+        assertTrue(weatherInsertUri != null);
         // A cursor is your primary interface to the query results.
         Cursor weatherCursor = mContext.getContentResolver().query(
                 WeatherEntry.CONTENT_URI,  // Table to Query
@@ -99,7 +100,7 @@ public class TestProvider extends AndroidTestCase {
         TestDb.validateCursor(weatherCursor, weatherValues);
         // Add the location values in with the weather data so that we can make
         // sure that the join worked and we actually get all the values back
-        addAllContentValues(weatherValues, testValues);
+        addAllContentValues(weatherValues, locationValues);
         // Get the joined Weather and Location data
         weatherCursor = mContext.getContentResolver().query(
                 WeatherEntry.buildWeatherLocation(TEST_LOCATION),
@@ -129,6 +130,7 @@ public class TestProvider extends AndroidTestCase {
                 null  // sort order
         );
         TestDb.validateCursor(weatherCursor, weatherValues);
+
     }
 
     // The target api annotation is needed for the call to keySet -- we wouldn't want
