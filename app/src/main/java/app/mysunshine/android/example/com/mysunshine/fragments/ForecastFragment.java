@@ -43,7 +43,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_POSTAL_CODE = 5;
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private static final int FORECAST_LOADER = 0;
-    private static String[] FORECAST_COLUMNS = {
+    public static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
             WeatherContract.WeatherEntry.COLUMN_DATETEXT,
             WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
@@ -142,9 +142,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 SimpleCursorAdapter adapter = (SimpleCursorAdapter) parent.getAdapter();
                 Cursor cursor = adapter.getCursor();
                 if (null != cursor && cursor.moveToPosition(position)) {
-                    boolean isMetric = Utility.isMetric(getActivity());
                     Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_INTENT, Utility.getForecastString(cursor, isMetric));
+                            .putExtra(DetailActivity.DATE_KEY, cursor.getString(ForecastFragment.COL_WEATHER_DATE));
                     startActivity(detailActivity);
                 }
             }
