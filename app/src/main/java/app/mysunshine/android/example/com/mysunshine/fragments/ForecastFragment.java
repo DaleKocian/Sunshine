@@ -131,9 +131,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mListViewForecast.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra(Intent.EXTRA_INTENT, "placeholder");
-                startActivity(detailActivity);
+                SimpleCursorAdapter adapter = (SimpleCursorAdapter) parent.getAdapter();
+                Cursor cursor = adapter.getCursor();
+                if (null != cursor && cursor.moveToPosition(position)) {
+                    boolean isMetric = Utility.isMetric(getActivity());
+                    Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
+                            .putExtra(Intent.EXTRA_INTENT, Utility.getForecastString(cursor, isMetric));
+                    startActivity(detailActivity);
+                }
             }
         });
         return rootView;

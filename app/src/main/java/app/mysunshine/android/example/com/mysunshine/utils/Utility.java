@@ -2,6 +2,7 @@ package app.mysunshine.android.example.com.mysunshine.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 
 import java.text.DateFormat;
@@ -9,6 +10,7 @@ import java.util.Date;
 
 import app.mysunshine.android.example.com.mysunshine.R;
 import app.mysunshine.android.example.com.mysunshine.data.WeatherContract;
+import app.mysunshine.android.example.com.mysunshine.fragments.ForecastFragment;
 
 /**
  * Created by dkocian on 9/9/2014.
@@ -39,5 +41,13 @@ public class Utility {
     public static String formatDate(String dateString) {
         Date date = WeatherContract.getDateFromDb(dateString);
         return DateFormat.getDateInstance().format(date);
+    }
+
+    public static String getForecastString(Cursor cursor, boolean isMetric) {
+        return String.format("%s - %s - %s/%s",
+                formatDate(cursor.getString(ForecastFragment.COL_WEATHER_DATE)),
+                cursor.getString(ForecastFragment.COL_WEATHER_DESC),
+                formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric),
+                formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
     }
 }
