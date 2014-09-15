@@ -159,4 +159,14 @@ public class Utility {
                 formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MAX_TEMP), isMetric),
                 formatTemperature(cursor.getDouble(ForecastFragment.COL_WEATHER_MIN_TEMP), isMetric));
     }
+
+    public static String formatTemperature(Context context, double temperature, boolean isMetric) {
+        double temp;
+        if (!isMetric) {
+            temp = 9 * temperature / 5 + 32;
+        } else {
+            temp = temperature;
+        }
+        return context.getString(R.string.format_temperature, temp);
+    }
 }
