@@ -1,31 +1,13 @@
 package app.mysunshine.android.example.com.mysunshine.activities;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import app.mysunshine.android.example.com.mysunshine.R;
-import app.mysunshine.android.example.com.mysunshine.data.WeatherContract;
 import app.mysunshine.android.example.com.mysunshine.fragments.DetailFragment;
-import app.mysunshine.android.example.com.mysunshine.fragments.ForecastFragment;
-import app.mysunshine.android.example.com.mysunshine.utils.Utility;
-import butterknife.ButterKnife;
 
 public class DetailActivity extends ActionBarActivity {
     public static final String DATE_KEY = "forecast_date";
@@ -37,8 +19,16 @@ public class DetailActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+            String date = getIntent().getStringExtra(DATE_KEY);
+            Bundle arguments = new Bundle();
+            arguments.putString(DetailActivity.DATE_KEY, date);
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new DetailFragment())
+                    .add(R.id.weather_detail_container, fragment)
                     .commit();
         }
     }

@@ -60,6 +60,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private final String LOG_TAG = DetailFragment.class.getSimpleName();
     private String mLocation;
     private String mForecast;
+    private String mDateStr;
     private ShareActionProvider mShareActionProvider;
     private ImageView mIconView;
     private TextView mFriendlyDateView;
@@ -82,15 +83,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
-            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mDateStr = arguments.getString(DetailActivity.DATE_KEY);
+        }
+        if (savedInstanceState != null) {
+            mLocation = savedInstanceState.getString(LOCATION_KEY);
+        }
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         mIconView = ButterKnife.findById(rootView, R.id.detail_icon);
         mDateView = ButterKnife.findById(rootView, R.id.detail_date_textview);
@@ -102,6 +102,16 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mWindView = ButterKnife.findById(rootView, R.id.detail_wind_textview);
         mPressureView = ButterKnife.findById(rootView, R.id.detail_pressure_textview);
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey(DetailActivity.DATE_KEY) &&
+                mLocation != null && !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
     }
 
     @Override
@@ -126,11 +136,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
-        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
     }
 
     @Override

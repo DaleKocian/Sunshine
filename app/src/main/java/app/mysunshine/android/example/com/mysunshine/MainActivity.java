@@ -10,20 +10,35 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import app.mysunshine.android.example.com.mysunshine.activities.DetailActivity;
 import app.mysunshine.android.example.com.mysunshine.activities.SettingsActivity;
+import app.mysunshine.android.example.com.mysunshine.fragments.DetailFragment;
 import app.mysunshine.android.example.com.mysunshine.fragments.ForecastFragment;
 import app.mysunshine.android.example.com.mysunshine.utils.UrlServices;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements ForecastFragment.Callback {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private boolean mTwoPane;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
-                    .commit();
+        if (findViewById(R.id.weather_detail_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp). If this view is present, then the activity should be
+            // in two-pane mode.
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailFragment())
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
         }
     }
 
@@ -53,15 +68,34 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void openPreferredLocationInMap() {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
         Uri builtUri = Uri.parse("geo:0,0?").buildUpon().appendQueryParameter(UrlServices.QUERY_PARAM, location).build();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(builtUri);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         } else {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
+        }
+    }
+
+    @Override
+    public void onItemSelected(String date) {
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putString(DetailActivity.DATE_KEY, date);
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class).putExtra(DetailActivity.DATE_KEY, date);
+            startActivity(intent);
         }
     }
 }
