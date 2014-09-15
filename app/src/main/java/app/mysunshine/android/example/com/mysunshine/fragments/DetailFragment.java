@@ -162,6 +162,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         if (cursor.moveToFirst()) {
             boolean isMetric = Utility.isMetric(getActivity());
             int weatherId = cursor.getInt(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
+            mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
             String dateString = Utility.formatDate(
                     cursor.getString(cursor.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT)));
             String weatherDescription =
