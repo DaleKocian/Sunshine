@@ -1,6 +1,5 @@
 package app.mysunshine.android.example.com.mysunshine.fragments;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,7 +20,6 @@ import java.util.Date;
 
 import app.mysunshine.android.example.com.mysunshine.FetchWeatherTask;
 import app.mysunshine.android.example.com.mysunshine.R;
-import app.mysunshine.android.example.com.mysunshine.activities.DetailActivity;
 import app.mysunshine.android.example.com.mysunshine.adapters.ForecastAdapter;
 import app.mysunshine.android.example.com.mysunshine.data.WeatherContract;
 import app.mysunshine.android.example.com.mysunshine.utils.Utility;
@@ -100,9 +98,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = mForecastAdapter.getCursor();
                 if (null != cursor && cursor.moveToPosition(position)) {
-                    Intent detailActivity = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(DetailActivity.DATE_KEY, cursor.getString(ForecastFragment.COL_WEATHER_DATE));
-                    startActivity(detailActivity);
+                    ((Callback) getActivity()).onItemSelected(cursor.getString(COL_WEATHER_DATE));
                 }
             }
         });
