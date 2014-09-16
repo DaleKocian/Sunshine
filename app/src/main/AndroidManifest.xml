@@ -40,8 +40,29 @@
                 android:value="app.mysunshine.android.example.com.mysunshine.MainActivity" />
         </activity>
         <provider
-            android:authorities="com.example.android.sunshine.app"
+            android:authorities="app.mysunshine.android.example.com.mysunshine"
             android:name=".data.contentprovider.WeatherProvider" />
+        <!-- SyncAdapter's dummy authentication service -->
+        <service android:name=".sync.SunshineAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator"/>
+        </service>
+
+        <!-- The syncadapter service -->
+        <service
+            android:name=".sync.SunshineSyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter"/>
+        </service>
     </application>
 
 </manifest>
